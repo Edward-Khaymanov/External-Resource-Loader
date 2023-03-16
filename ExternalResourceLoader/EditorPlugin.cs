@@ -10,7 +10,7 @@ namespace ExternalResourceLoader
 {
     public class EditorPlugin : EditorWindow
     {
-        [SerializeField] private string _dllName = "Dll name";
+        [SerializeField] private string _dllName = "Assembly-CSharp";
 
         private const string LOCAL_BUILD_PATH_VARIABLE = "Local.BuildPath";
         private const string LOCAL_LOAD_PATH_VARIABLE = "Local.LoadPath";
@@ -65,7 +65,7 @@ namespace ExternalResourceLoader
             if (copyDll)
             {
                 var sourcePath = Path.Combine(Application.dataPath.Replace("Assets", @"Library\ScriptAssemblies"), $"{_dllName}.dll");
-                var targetPath = Path.Combine(Settings.ResourcesPath, _dllName);
+                var targetPath = Path.Combine(Settings.ResourcesPath, $"{_dllName}.dll");
                 if (File.Exists(sourcePath))
                     File.Copy(sourcePath, targetPath, true);
             }
