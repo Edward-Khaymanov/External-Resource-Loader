@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+
 namespace ExternalResourceLoader
 {
     public static class Settings
