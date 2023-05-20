@@ -15,106 +15,158 @@ namespace ExternalResourceLoader
         {
             CheckDirectory(dataFolderPath);
 
-            var assetLoader = new ExternalAssetLoader();
-            var configPath = assetLoader.GetJsonFilePath(dataFolderPath);
+            var configPath = GetJsonFilePath(dataFolderPath);
 
             CheckConfigExist(configPath);
             SetLoadPath(dataFolderPath);
 
-            var locator = assetLoader.GetResourceLocator(configPath);
-            var key = assetLoader.GetGameObjectKey(locator, label);
-            return assetLoader.LoadGameobject(key);
+            var locator = GetResourceLocator(configPath);
+            var location = GetGameObjectLocation(locator, label);
+            return LoadGameObject(location);
+        }
+
+        public IList<GameObject> GetGameObjects(string dataFolderPath, string label)
+        {
+            CheckDirectory(dataFolderPath);
+
+            var configPath = GetJsonFilePath(dataFolderPath);
+
+            CheckConfigExist(configPath);
+            SetLoadPath(dataFolderPath);
+
+            var locator = GetResourceLocator(configPath);
+            var locations = GetGameObjectsLocations(locator, label);
+            return LoadGameObjects(locations);
         }
 
         public ScriptableObject GetScriptableObject(string dataFolderPath, string label)
         {
             CheckDirectory(dataFolderPath);
 
-            var assetLoader = new ExternalAssetLoader();
-            var configPath = assetLoader.GetJsonFilePath(dataFolderPath);
+            var configPath = GetJsonFilePath(dataFolderPath);
 
             CheckConfigExist(configPath);
             SetLoadPath(dataFolderPath);
 
-            var locator = assetLoader.GetResourceLocator(configPath);
-            var key = assetLoader.GetScriptableObjectKey(locator, label);
-            return assetLoader.LoadScriptableObject(key);
+            var locator = GetResourceLocator(configPath);
+            var location = GetScriptableObjectLocation(locator, label);
+            return LoadScriptableObject(location);
         }
 
-        public void SetLoadPath(string path)
+        public IList<ScriptableObject> GetScriptableObjects(string dataFolderPath, string label)
         {
-            Settings.LoadPath = path;
+            CheckDirectory(dataFolderPath);
+
+            var configPath = GetJsonFilePath(dataFolderPath);
+
+            CheckConfigExist(configPath);
+            SetLoadPath(dataFolderPath);
+
+            var locator = GetResourceLocator(configPath);
+            var location = GetScriptableObjectsLocations(locator, label);
+            return LoadScriptableObjects(location);
         }
 
-        private GameObject LoadGameobject(string addressableKey)
+        private GameObject LoadGameObject(IResourceLocation location)
         {
-            var mapHandle = Addressables.LoadAssetAsync<GameObject>(addressableKey);
-            mapHandle.WaitForCompletion();
+            var handle = Addressables.LoadAssetAsync<GameObject>(location);
+            handle.WaitForCompletion();
 
-            var result = mapHandle.Result;
+            var result = handle.Result;
             if (result == null)
                 throw new Exception();
 
             return result;
         }
 
-        private ScriptableObject LoadScriptableObject(string addressableKey)
+        private IList<GameObject> LoadGameObjects(IList<IResourceLocation> locations)
         {
-            var mapHandle = Addressables.LoadAssetAsync<ScriptableObject>(addressableKey);
-            mapHandle.WaitForCompletion();
+            var handle = Addressables.LoadAssetsAsync<GameObject>(locations, null);
+            handle.WaitForCompletion();
 
-            var result = mapHandle.Result;
+            var result = handle.Result;
+            if (result == null || result.Count == 0)
+                throw new Exception();
+
+            return result;
+        }
+
+        private ScriptableObject LoadScriptableObject(IResourceLocation location)
+        {
+            var handle = Addressables.LoadAssetAsync<ScriptableObject>(location);
+            handle.WaitForCompletion();
+
+            var result = handle.Result;
             if (result == null)
                 throw new Exception();
 
             return result;
         }
 
-        private IResourceLocator GetResourceLocator(string calalogFilePath)
+        private IList<ScriptableObject> LoadScriptableObjects(IList<IResourceLocation> locations)
         {
-            var catalogHandle = Addressables.LoadContentCatalogAsync(calalogFilePath);
-            catalogHandle.WaitForCompletion();
+            var handle = Addressables.LoadAssetsAsync<ScriptableObject>(locations, null);
+            handle.WaitForCompletion();
 
-            var result = catalogHandle.Result;
-            if (result == null)
+            var result = handle.Result;
+            if (result == null || result.Count == 0)
                 throw new Exception();
 
-            Addressables.Release(catalogHandle);
             return result;
         }
 
-        private string GetGameObjectKey(IResourceLocator locator, string label)
+        private IResourceLocation GetGameObjectLocation(IResourceLocator locator, string key)
         {
-            var mapIsFound = locator.Locate(
-                label,
+            return GetGameObjectsLocations(locator, key)[0];
+        }
+
+        private IList<IResourceLocation> GetGameObjectsLocations(IResourceLocator locator, string key)
+        {
+            var isFound = locator.Locate(
+                key,
                 typeof(GameObject),
                 out IList<IResourceLocation> locations);
 
-            if (mapIsFound == false)
+            if (isFound == false)
                 throw new Exception();
 
-            var key = locations[0].PrimaryKey;
-            if (string.IsNullOrEmpty(key))
-                throw new Exception();
-
-            return key;
+            return locations;
         }
 
-        private string GetScriptableObjectKey(IResourceLocator locator, string label)
+        private IResourceLocation GetScriptableObjectLocation(IResourceLocator locator, string key)
+        {
+            return GetScriptableObjectsLocations(locator, key)[0];
+        }
+
+        private IList<IResourceLocation> GetScriptableObjectsLocations(IResourceLocator locator, string key)
         {
             var isFound = locator.Locate(
-                label,
+                key,
                 typeof(ScriptableObject),
                 out IList<IResourceLocation> locations);
 
             if (isFound == false)
                 throw new Exception();
 
-            var key = locations[0].PrimaryKey;
-            if (string.IsNullOrEmpty(key))
+            return locations;
+        }
+
+        private IResourceLocator GetResourceLocator(string calalogFilePath)
+        {
+            var handle = Addressables.LoadContentCatalogAsync(calalogFilePath);
+            handle.WaitForCompletion();
+
+            var result = handle.Result;
+            if (result == null)
                 throw new Exception();
 
-            return key;
+            Addressables.Release(handle);
+            return result;
+        }
+
+        private void SetLoadPath(string path)
+        {
+            Settings.LoadPath = path;
         }
 
         private string GetJsonFilePath(string folderPath)
