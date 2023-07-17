@@ -10,8 +10,6 @@ namespace ExternalResourceLoader
 {
     public class EditorPlugin : EditorWindow
     {
-        [SerializeField] private string _dllName = "Assembly-CSharp";
-
         private const string LOCAL_BUILD_PATH_VARIABLE = "Local.BuildPath";
         private const string LOCAL_LOAD_PATH_VARIABLE = "Local.LoadPath";
         private const string MONOSCRIPT_BUNDLE_CUSTOM_NAMING = "_ExternalResource_";
@@ -42,33 +40,20 @@ namespace ExternalResourceLoader
             settings.UniqueBundleIds = true;
             settings.MonoScriptBundleNaming = UnityEditor.AddressableAssets.Build.MonoScriptBundleNaming.Custom;
             settings.MonoScriptBundleCustomNaming = MONOSCRIPT_BUNDLE_CUSTOM_NAMING;
-        }
 
-        private static void Build()
-        {
-            AddressableAssetSettings.CleanPlayerContent();
-            AddressableAssetSettings.BuildPlayerContent();
+            Directory.CreateDirectory(Settings.ResourcesPath);
         }
 
         private void OnGUI()
         {
             var buttonSettings = GUILayout.Height(20);
-
             var build = GUILayout.Button("Build", buttonSettings);
             var deleteBuild = GUILayout.Button("Delete build", buttonSettings);
-            var openBuildFolder = GUILayout.Button("Open resources folder", buttonSettings);
-
-            GUILayout.Space(10);
-
-            _dllName = EditorGUILayout.TextField(_dllName);
+            var openResourcesFolder = GUILayout.Button("Open resources folder", buttonSettings);
             var copyDll = GUILayout.Button("Copy dll to resources folder", buttonSettings);
+
             if (copyDll)
-            {
-                var sourcePath = Path.Combine(Application.dataPath.Replace("Assets", @"Library\ScriptAssemblies"), $"{_dllName}.dll");
-                var targetPath = Path.Combine(Settings.ResourcesPath, $"{_dllName}.dll");
-                if (File.Exists(sourcePath))
-                    File.Copy(sourcePath, targetPath, true);
-            }
+                CopyDll();
 
             if (build)
                 Build();
@@ -76,8 +61,30 @@ namespace ExternalResourceLoader
             if (deleteBuild && Directory.Exists(Settings.BuildPath))
                 Directory.Delete(Settings.BuildPath, true);
 
-            if (openBuildFolder)
+            if (openResourcesFolder)
                 Process.Start("explorer.exe", Settings.ResourcesPath);
+        }
+
+        private void Build()
+        {
+            AddressableAssetSettings.CleanPlayerContent();
+            AddressableAssetSettings.BuildPlayerContent();
+        }
+
+        private void CopyDll()
+        {
+            var projectFolder = Directory.GetParent(Application.dataPath);
+            var selectedDllPath = EditorUtility.OpenFilePanelWithFilters("Select dll", projectFolder.FullName, new[] { "Dll files", "dll" });
+
+            if (string.IsNullOrEmpty(selectedDllPath))
+                return;
+
+            var file = new FileInfo(selectedDllPath);
+            if (file.Exists == false)
+                return;
+
+            var targetPath = Path.Combine(Settings.ResourcesPath, file.Name);
+            file.CopyTo(targetPath, true);
         }
     }
 }
