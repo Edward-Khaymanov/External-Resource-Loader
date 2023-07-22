@@ -23,7 +23,7 @@ namespace ExternalResourceLoader
         [MenuItem("Window/ExternalResourceLoader/Init")]
         public static void Init()
         {
-            var settings = AddressableAssetSettingsDefaultObject.Settings;
+            var settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
             var profileSettings = settings.profileSettings;
 
             var newProfileId = profileSettings.AddProfile("ExternalResources", settings.activeProfileId);
