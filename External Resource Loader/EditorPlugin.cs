@@ -14,13 +14,13 @@ namespace ExternalResourceLoader
         private const string LOCAL_LOAD_PATH_VARIABLE = "Local.LoadPath";
         private const string MONOSCRIPT_BUNDLE_CUSTOM_NAMING = "_ExternalResource_";
 
-        [MenuItem("Window/ExternalResourceLoader/Show")]
+        [MenuItem("Window/External Resource Loader/Show")]
         public static void ShowWindow()
         {
             GetWindow<EditorPlugin>("External Resource Loader");
         }
 
-        [MenuItem("Window/ExternalResourceLoader/Init")]
+        [MenuItem("Window/External Resource Loader/Init")]
         public static void Init()
         {
             var settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
@@ -47,28 +47,37 @@ namespace ExternalResourceLoader
         private void OnGUI()
         {
             var buttonSettings = GUILayout.Height(20);
+            var buildOverwrite = GUILayout.Toggle(true, "Overwrite if the build folder exists");
             var build = GUILayout.Button("Build", buttonSettings);
             var deleteBuild = GUILayout.Button("Delete build", buttonSettings);
             var openResourcesFolder = GUILayout.Button("Open resources folder", buttonSettings);
             var copyDll = GUILayout.Button("Copy dll to resources folder", buttonSettings);
-
             if (copyDll)
                 CopyDll();
 
             if (build)
-                Build();
+                Build(buildOverwrite);
 
-            if (deleteBuild && Directory.Exists(Settings.BuildPath))
-                Directory.Delete(Settings.BuildPath, true);
+            if (deleteBuild)
+                DeleteBuild();
 
             if (openResourcesFolder)
                 Process.Start("explorer.exe", Settings.ResourcesPath);
         }
 
-        private void Build()
+        private void Build(bool overwrite)
         {
+            if (overwrite)
+                DeleteBuild();
+
             AddressableAssetSettings.CleanPlayerContent();
             AddressableAssetSettings.BuildPlayerContent();
+        }
+
+        private void DeleteBuild()
+        {
+            if (Directory.Exists(Settings.BuildPath))
+                Directory.Delete(Settings.BuildPath, true);
         }
 
         private void CopyDll()
