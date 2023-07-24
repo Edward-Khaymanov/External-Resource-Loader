@@ -2,7 +2,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace ExternalResourcesLoader
+namespace ExternalResourceLoader
 {
     public class DllLoader
     {
