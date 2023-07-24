@@ -3,27 +3,22 @@ The External Resource Loader is a tool that helps you configure UNITY to load mo
 
 
 ## Requirements
-- Installed addresables package
-- Created AddressableAssetSettings
+- Addresables
 
-## How to setup
-1. Click `Window/Asset Management/Addresables/Groups` and change Play Mode Script to `Use Existing Build`
-2. Import `ExternalResourceLoader` folder in your project
-3. Click `Window/ExternalResourceLoader/Init` - this will set up your standard addressables settings and create a new profile
+## Setup
+1. Import package in your project
+2. Click `Window/External Resource Loader/Init` - this will set up your addressables settings, create a new profile and create ExternalResources folder
 
 ## Plugin overview
-
 Click `Window/ExternalResourceLoader/Show` - this will open the plugin window
 
-1. Build - creates a folder at `Settings.BuildPath` in which there will be a folder `Data` in which there will be resources marked as Addresable
-2. Delete build - delete folder at `Settings.BuildPath`
-3. Open resource folder - open folder with external assets
-4. Copy dll - select you scripts dll (by default it is Assembly-CSharp) and copy it to folder with external assets (`Settings.ResourcesPath`)
-
+- Build - creates a folder at `Settings.BuildPath` in which there will be a folder `Data` in which there will be resources marked as Addresable
+- Delete build - delete folder at `Settings.BuildPath`
+- Open resource folder - open folder with external assets
+- Copy dll - select you scripts dll (by default it is Assembly-CSharp) and copy it to folder with external assets (`Settings.ResourcesPath`)
 
 ## Usage
 ### Export
-
 1. Make you gameobject addresable
 2. Set label for this object
 3. Click build in plugin window
