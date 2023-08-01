@@ -1,5 +1,5 @@
 # External Resource Loader
-The External Resource Loader is a tool that helps you configure UNITY to load mods/resources from a local disk using unity addresables
+External Resource Loader is a tool that helps you configure UNITY to load mods/resources from a local disk using unity addresables
 
 
 ## Requirements
