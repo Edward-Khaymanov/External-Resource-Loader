@@ -9,7 +9,7 @@ using UnityEngine.ResourceManagement.ResourceLocations;
 
 namespace ExternalResourceLoader
 {
-    public class ExternalAssetLoader
+    public class AssetLoader
     {
         public GameObject GetGameObject(string dataFolderPath, string label)
         {
